@@ -1,0 +1,53 @@
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: insurance_db
+      POSTGRES_USER: insurance_user
+      POSTGRES_PASSWORD: insurance_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  premium-service:
+    build:
+      context: ./premium-service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/insurance_db
+      SPRING_DATASOURCE_USERNAME: insurance_user
+      SPRING_DATASOURCE_PASSWORD: insurance_pass
+    depends_on:
+      - postgres
+
+  application-service:
+    build:
+      context: ./insurance-application-service
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/insurance_db
+      SPRING_DATASOURCE_USERNAME: insurance_user
+      SPRING_DATASOURCE_PASSWORD: insurance_pass
+      PREMIUM_SERVICE_URL: http://premium-service:8081
+    depends_on:
+      - postgres
+      - premium-service
+
+  frontend-ui:
+    build:
+      context: ./frontend-ui
+    depends_on:
+      - application-service
+    ports:
+      - "8082:8082"
+    environment:
+      - APPLICATION_SERVICE_URL=http://application-service:8080
+
+volumes:
+  postgres-data:

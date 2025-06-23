@@ -1,0 +1,4 @@
+application-service:
+    url: http://application-service:8080
+server:
+  port: 8082

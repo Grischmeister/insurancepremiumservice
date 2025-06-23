@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Versicherungsprämie</title>
+</head>
+<body>
+<h2>Versicherungsantrag</h2>
+<form th:action="@{/calculate}" method="post" th:object="${applicationRequest}">
+    Postleitzahl: <input type="text" th:field="*{zipcode}" /><br/>
+    Fahrzeugtyp: <input type="text" th:field="*{carType}" /><br/>
+    Kilometerleistung: <input type="number" th:field="*{kilometers}" /><br/>
+    <button type="submit">Berechnen</button>
+</form>
+
+<div th:if="${result}">
+    <h3>Berechnete Prämie: <span th:text="${result}">0.0</span></h3>
+</div>
+</body>
+</html>
