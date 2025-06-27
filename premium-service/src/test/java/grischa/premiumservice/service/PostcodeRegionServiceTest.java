@@ -15,7 +15,7 @@ class PostcodeRegionServiceTest {
     @BeforeEach
     void setup() {
         String csvContent = """
-            POSTLEITZAHL,REGION1
+             POSTLEITZAHL, REGION1
             10115,BERLIN
             80331,BAYERN
             """;

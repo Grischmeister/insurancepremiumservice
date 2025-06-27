@@ -22,14 +22,14 @@ public class InsuranceApplicationService {
     }
 
     public InsuranceApplicationResponse create(InsuranceApplicationRequest request) {
-        var premiumRequest = new PremiumRequest();
+        PremiumRequest premiumRequest = new PremiumRequest();
         premiumRequest.setCarType(request.getCarType());
         premiumRequest.setKilometers(request.getKilometers());
         premiumRequest.setZipcode(request.getZipcode());
 
         PremiumResponse premiumResponse = premiumWebClient.calculate(premiumRequest);
 
-        var app = new InsuranceApplication();
+        InsuranceApplication app = new InsuranceApplication();
         app.setCarType(request.getCarType());
         app.setKilometers(request.getKilometers());
         app.setZipcode(request.getZipcode());
