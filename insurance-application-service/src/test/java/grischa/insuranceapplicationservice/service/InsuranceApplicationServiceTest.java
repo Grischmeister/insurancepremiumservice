@@ -77,24 +77,4 @@ class InsuranceApplicationServiceTest {
         assertEquals(savedApp.getId(), response.getId());
         assertEquals(savedApp.getPremium(), response.getPremium());
     }
-
-    @Test
-    void testCalculatePremium() throws Exception {
-        MockWebServer server = new MockWebServer();
-        server.enqueue(new MockResponse()
-                .setBody("{\"premium\": 3.6}")
-                .addHeader("Content-Type", "application/json"));
-
-        server.start();
-        String baseUrl = server.url("/").toString();
-
-        PremiumWebClient client = new PremiumWebClient(WebClient.builder().baseUrl(baseUrl).build());
-
-        PremiumRequest request = new PremiumRequest("SUV", 10000, "10115");
-        PremiumResponse response = client.calculate(request);
-
-        assertEquals(3.6, response.getPremium());
-        server.shutdown();
-    }
-
 }

@@ -12,21 +12,30 @@ import java.util.Map;
 @Service
 public class PostcodeRegionService {
 
-    private final Map<String, String> plzToRegionMap = new HashMap<>();
+    final Map<String, String> plzToRegionMap = new HashMap<>();
+
+    private InputStream inputStream;
+
+    public PostcodeRegionService() {
+        this.inputStream = getClass().getClassLoader().getResourceAsStream("postcodes.csv");
+    }
+
+    public PostcodeRegionService(InputStream inputStream) {
+        this.inputStream = inputStream;
+    }
 
     @PostConstruct
     public void loadCSV() {
+        if (inputStream == null) {
+            throw new RuntimeException("File not found");
+        }
         try {
-            InputStream inputStream = getClass().getClassLoader().getResourceAsStream("postcodes.csv");
-            if (inputStream == null) {
-                throw new RuntimeException("postcodes.csv wurde nicht im classpath gefunden");
-            }
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             CSVReader csvReader = new CSVReader(reader);
 
             List<String[]> allRows = csvReader.readAll();
             if (allRows.isEmpty()) {
-                throw new RuntimeException("CSV-Datei ist leer");
+                throw new RuntimeException("File is empty");
             }
             String[] header = allRows.get(0);
             int postcodeIndex = -1;
