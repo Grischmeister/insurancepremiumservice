@@ -120,6 +120,12 @@ Ein optionales Frontend (`FrontendUI`) ermöglicht die einfache Eingabe und Anze
 
 ## ▶️ Start & Stop
 
+### Vorraussetzungen
+
+- JDK17
+- Docker und Docker Compose
+- Maven
+
 ### 1. Klonen & Starten
 
 ```bash
