@@ -2,33 +2,33 @@
 
 # 🚗 Versicherungsprämien-Berechnung
 
-Ein Java/Spring-basiertes Microservice-Projekt zur Berechnung von Kfz-Versicherungsprämien. Die Anwendung speichert Anträge in einer Datenbank, ermittelt Prämien auf Basis von Postleitzahl, Fahrzeugtyp und Kilometerleistung und bietet eine einfache Web-Oberfläche.
+Ein Java/Spring-basiertes Microservice-Projekt zur Berechnung von Kfz-Versicherungsprämien. Die Anwendung speichert Anträge in einer Datenbank, ermittelt Prämien basierend auf Postleitzahl, Fahrzeugtyp und Kilometerleistung und bietet eine einfache Web-Oberfläche.
 
 ---
 
 ## 📌 Inhaltsverzeichnis
 
-* [Projektüberblick](#projektüberblick)
-* [Architektur](#architektur)
-* [Technologien](#technologien)
-* [Datenbankwahl](#datenbankwahl)
-* [Services](#services)
-* [Kommunikation zwischen Services](#kommunikation-zwischen-services)
-* [Tests & Softwarequalität](#tests--softwarequalität)
-* [Start & Stop](#start--stop)
-* [Web-Oberfläche](#web-oberfläche)
-* [Beispielablauf](#beispielablauf)
+- [Projektüberblick](#projektüberblick)
+- [Architektur](#architektur)
+- [Technologien](#technologien)
+- [Datenbankwahl](#datenbankwahl)
+- [Services](#services)
+- [Kommunikation zwischen Services](#kommunikation-zwischen-services)
+- [Tests & Softwarequalität](#tests--softwarequalität)
+- [Start & Stop](#start--stop)
+- [Web-Oberfläche](#web-oberfläche)
+- [Beispielablauf](#beispielablauf)
 
 ---
 
 ## 📖 Projektüberblick
 
-Das System besteht aus zwei Services:
+Das System besteht aus mindestens zwei Microservices:
 
-* **InsuranceApplicationService** – nimmt Versicherungsanträge entgegen, ruft den PremiumService zur Berechnung auf und speichert das Ergebnis in der Datenbank.
-* **PremiumService** – berechnet die Versicherungsprämie auf Grundlage eines CSV-Mappings von Postleitzahlen zu Bundesländern sowie verschiedener Faktoren.
+- **InsuranceApplicationService** – Entgegennahme und Speicherung von Versicherungsanträgen sowie Koordination der Prämienberechnung.
+- **PremiumService** – Berechnung der Versicherungsprämie basierend auf einem CSV-Mapping von Postleitzahlen zu Bundesländern und weiteren Faktoren.
 
-Ein optionales Frontend (`FrontendUI`) erlaubt die einfache Eingabe und Anzeige der Ergebnisse.
+Ein optionales Frontend (`FrontendUI`) ermöglicht die einfache Eingabe und Anzeige der Ergebnisse.
 
 ---
 
@@ -40,33 +40,33 @@ Ein optionales Frontend (`FrontendUI`) erlaubt die einfache Eingabe und Anzeige 
                          [PostgreSQL DB]
 ```
 
-* Die Services sind lose gekoppelt über REST-Kommunikation.
-* Datenbankzugriffe erfolgen ausschließlich über den InsuranceApplicationService.
-* Die Premium-Berechnung ist vollständig ausgelagert.
+- Services kommunizieren lose gekoppelt über REST.
+- Datenbankzugriffe erfolgen ausschließlich über den InsuranceApplicationService.
+- Prämienberechnung ist ausgelagert im PremiumService.
 
 ---
 
 ## 🧰 Technologien
 
-* Java 17
-* Spring Boot
-* Spring Web / WebFlux (WebClient)
-* Spring Data JPA + Hibernate
-* PostgreSQL
-* Thymeleaf (Frontend)
-* Docker & Docker Compose
-* JUnit 5 + Mockito (Tests)
+- Java 17
+- Spring Boot (Web, WebFlux/WebClient)
+- Spring Data JPA + Hibernate
+- PostgreSQL
+- Thymeleaf (Frontend)
+- Docker & Docker Compose
+- JUnit 5, Mockito, RestAssured (Tests)
 
 ---
 
 ## 🗃️ Datenbankwahl
 
-**PostgreSQL** wurde gewählt wegen:
+**PostgreSQL** wurde gewählt aufgrund:
 
-* Weit verbreitet, stabil, Open Source
-* Gute Integration mit Spring Data JPA
-* Unterstützung komplexer Datentypen (z. B. JSON falls nötig)
-* Leicht testbar mit Testcontainers
+- Stabilität und weit verbreiteter Nutzung
+- Hervorragender Integration in Spring Data JPA
+- Unterstützung komplexer Datentypen (z.B. JSON)
+- Gute Testbarkeit via Testcontainers
+- Zukunftssichere Skalierbarkeit
 
 ---
 
@@ -74,52 +74,47 @@ Ein optionales Frontend (`FrontendUI`) erlaubt die einfache Eingabe und Anzeige 
 
 ### 1. InsuranceApplicationService
 
-Verantwortlich für:
-
-* Entgegennahme von Versicherungsanträgen
-* Aufruf des PremiumService zur Prämienberechnung
-* Speicherung der Anträge inkl. Ergebnis
-* REST-Endpoint: `POST /application`
+- REST-Endpoint: `POST /application`
+- Aufgaben:
+  - Annahme von Versicherungsanträgen
+  - Validierung und Persistenz der Anträge
+  - Aufruf des PremiumService zur Prämienberechnung
+  - Rückgabe des Ergebnisses an den Client
 
 ### 2. PremiumService
 
-Verantwortlich für:
-
-* Ermittlung des Bundeslands anhand der Postleitzahl
-* Berechnung der Prämie auf Basis von Regeln (Fahrzeugtyp, Kilometerleistung, Region)
-* REST-Endpoint: `POST /premium`
-
-> 📁 CSV-Datei: `postcodes.csv` im `resources`-Verzeichnis
+- REST-Endpoint: `POST /premium`
+- Aufgaben:
+  - Ermittlung des Bundeslands anhand der Postleitzahl (CSV-Mapping)
+  - Berechnung der Prämie nach Fahrzeugtyp, Kilometerleistung und Region
 
 ---
 
 ## 🔗 Kommunikation zwischen Services
 
-Die Kommunikation erfolgt synchron via **HTTP REST**:
-
-* `InsuranceApplicationService` ruft `PremiumService` per **`WebClient`** auf.
-* Daten werden als JSON übertragen.
-* DTOs werden in jedem Service separat gepflegt (Entkopplung).
+- Synchronous HTTP REST APIs
+- JSON als Datenformat
+- InsuranceApplicationService verwendet Spring WebClient zum Aufruf des PremiumService
+- DTOs sind in jedem Service separat definiert (Entkopplung)
 
 ---
 
 ## 🧪 Tests & Softwarequalität
 
-### Teststrategie:
+### Testframeworks & Tools
 
-| Ebene       | Tool                         | Inhalt                                 |
-| ----------- | ---------------------------- | -------------------------------------- |
-| Unit        | JUnit 5, Mockito             | Logik-Tests, z. B. `PremiumCalculator` |
-| Integration | SpringBootTest               | DB-Integration, API-Endpunkte          |
-| End-to-End  | MockMvc, ggf. Testcontainers | Gesamtsystem über UI                   |
+| Ebene         | Zweck                         | Tools                |
+| ------------- | ----------------------------- | -------------------- |
+| Unit-Tests    | Geschäftslogik                | JUnit 5, Mockito     |
+| Integration   | Zusammenspiel mit DB          | Spring Boot Test, Testcontainers |
+| End-to-End    | REST API Gesamtfunktionalität | RestAssured          |
 
-### Qualitätssicherung:
+### Qualitätssicherung
 
-* Tests für alle Services
-* Coverage-Ziel: >80 %
-* Gültigkeit der CSV geprüft (PostConstruct)
-* Fehlerhafte Eingaben werden abgefangen
-* CI (optional) mit GitHub Actions o.ä.
+- Vollständige Unit-Test-Abdeckung für Kernlogik
+- Abfangen und Testen fehlerhafter Eingaben
+- Automatisierte Start- und Testskripte (`start-and-test.sh`)
+- Ausführliche Dokumentation & Code Reviews
 
 ---
 
@@ -128,8 +123,15 @@ Die Kommunikation erfolgt synchron via **HTTP REST**:
 ### 1. Klonen & Starten
 
 ```bash
-git clone https://github.com/dein-benutzer/insurance-app.git
-cd insurance-app
+git clone https://github.com/Grischmeister/insurancepremiumservice.git
+cd insurancepremiumservice
+chmod +x start-and-test.sh
+./start-and-test.sh
+````
+
+Danach regulär starten:
+
+```bash
 chmod +x start.sh
 ./start.sh
 ```
@@ -140,34 +142,28 @@ chmod +x start.sh
 ./stop.sh
 ```
 
-### 3. Alternativ manuell (wenn Docker installiert ist)
-
-```bash
-mvn clean package
-docker-compose up --build
-```
-
 ---
 
 ## 🧑‍💻 Web-Oberfläche
 
-### Verfügbar unter: [http://localhost:8082](http://localhost:8082)
-
-* Einfache Eingabemaske mit:
+* Verfügbar unter: [http://localhost:8082](http://localhost:8082)
+* Einfache Eingabemaske für:
 
   * Postleitzahl
   * Fahrzeugtyp
   * Kilometerleistung
-* Rückgabe der berechneten Versicherungsprämie
+* Anzeige der berechneten Prämie
 
 ---
 
 ## 🧪 Beispielablauf
 
-1. Benutzer füllt das Formular aus und klickt auf "Berechnen".
-2. UI sendet POST `/calculate` an `FrontendUI`.
-3. Frontend ruft `/application` vom `InsuranceApplicationService`.
-4. Service leitet an `PremiumService` weiter.
-5. Ergebnis wird zurück an UI geleitet und angezeigt.
+1. Benutzer füllt Formular in Web-UI aus und klickt "Berechnen".
+2. FrontendUI sendet POST `/calculate`.
+3. FrontendUI ruft `/application` des InsuranceApplicationService auf.
+4. InsuranceApplicationService delegiert an PremiumService (`POST /premium`).
+5. PremiumService berechnet Prämie und sendet Ergebnis zurück.
+6. Ergebnis wird an FrontendUI weitergeleitet und angezeigt.
+7. Antrag wird in PostgreSQL gespeichert.
 
 ---
